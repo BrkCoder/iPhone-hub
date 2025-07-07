@@ -1,4 +1,4 @@
-import { Html, OrbitControls, PerspectiveCamera, View } from "@react-three/drei"
+import { OrbitControls, PerspectiveCamera, View } from "@react-three/drei"
 
 import * as THREE from 'three'
 import Lights from './Lights';
@@ -6,7 +6,21 @@ import Loader from './Loader';
 import IPhone from './IPhone';
 import { Suspense } from "react";
 
-const ModelView = ({ index, groupRef, gsapType, controlRef, setRotationState, size, item }) => {
+interface ModelViewProps {
+  index: number;
+  groupRef: React.MutableRefObject<THREE.Group>;
+  gsapType: string;
+  controlRef: React.MutableRefObject<any>;
+  setRotationState: (rotation: number) => void;
+  size: string;
+  item: {
+    title: string;
+    color: string[];
+    img: string;
+  };
+}
+
+const ModelView: React.FC<ModelViewProps> = ({ index, groupRef, gsapType, controlRef, setRotationState, size, item }) => {
   return (
     <View
       index={index}

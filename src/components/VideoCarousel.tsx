@@ -3,14 +3,15 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/all";
 gsap.registerPlugin(ScrollTrigger);
 import { useEffect, useRef, useState } from "react";
+import type { SyntheticEvent } from "react";
 
 import { hightlightsSlides } from "../constants";
 import { pauseImg, playImg, replayImg } from "../utils";
 
 const VideoCarousel = () => {
-  const videoRef = useRef([]);
-  const videoSpanRef = useRef([]);
-  const videoDivRef = useRef([]);
+  const videoRef = useRef<(HTMLVideoElement | null)[]>([]);
+  const videoSpanRef = useRef<(HTMLSpanElement | null)[]>([]);
+  const videoDivRef = useRef<(HTMLSpanElement | null)[]>([]);
 
   // video and indicator
   const [video, setVideo] = useState({
@@ -21,7 +22,7 @@ const VideoCarousel = () => {
     isPlaying: false,
   });
 
-  const [loadedData, setLoadedData] = useState([]);
+  const [loadedData, setLoadedData] = useState<SyntheticEvent<HTMLVideoElement, Event>[]>([]);
   const { isEnd, isLastVideo, startPlay, videoId, isPlaying } = video;
 
   useGSAP(() => {
@@ -99,10 +100,13 @@ const VideoCarousel = () => {
 
       // update the progress bar
       const animUpdate = () => {
-        anim.progress(
-          videoRef.current[videoId].currentTime /
-            hightlightsSlides[videoId].videoDuration
-        );
+        const currentVideo = videoRef.current[videoId];
+        if (currentVideo) {
+          anim.progress(
+            currentVideo.currentTime /
+              hightlightsSlides[videoId].videoDuration
+          );
+        }
       };
 
       if (isPlaying) {
@@ -117,19 +121,22 @@ const VideoCarousel = () => {
 
   useEffect(() => {
     if (loadedData.length > 3) {
-      if (!isPlaying) {
-        videoRef.current[videoId].pause();
-      } else {
-        startPlay && videoRef.current[videoId].play();
+      const currentVideo = videoRef.current[videoId];
+      if (currentVideo) {
+        if (!isPlaying) {
+          currentVideo.pause();
+        } else {
+          startPlay && currentVideo.play();
+        }
       }
     }
   }, [startPlay, videoId, isPlaying, loadedData]);
 
   // vd id is the id for every video until id becomes number 3
-  const handleProcess = (type, i) => {
+  const handleProcess = (type: string, i?: number) => {
     switch (type) {
       case "video-end":
-        setVideo((pre) => ({ ...pre, isEnd: true, videoId: i + 1 }));
+        setVideo((pre) => ({ ...pre, isEnd: true, videoId: (i || 0) + 1 }));
         break;
 
       case "video-last":
@@ -153,7 +160,7 @@ const VideoCarousel = () => {
     }
   };
 
-  const handleLoadedMetaData = (i, e) => setLoadedData((pre) => [...pre, e]);
+  const handleLoadedMetaData = (_i: number, e: SyntheticEvent<HTMLVideoElement, Event>) => setLoadedData((pre) => [...pre, e]);
 
   return (
     <>
@@ -170,7 +177,7 @@ const VideoCarousel = () => {
                   } pointer-events-none`}
                   preload="auto"
                   muted
-                  ref={(el) => (videoRef.current[i] = el)}
+                  ref={(el) => { videoRef.current[i] = el; }}
                   onEnded={() =>
                     i !== 3
                       ? handleProcess("video-end", i)
@@ -203,27 +210,29 @@ const VideoCarousel = () => {
             <span
               key={i}
               className="mx-2 w-3 h-3 bg-gray-200 rounded-full relative cursor-pointer"
-              ref={(el) => (videoDivRef.current[i] = el)}
+              ref={(el) => { videoDivRef.current[i] = el; }}
             >
               <span
                 className="absolute h-full w-full rounded-full"
-                ref={(el) => (videoSpanRef.current[i] = el)}
+                ref={(el) => { videoSpanRef.current[i] = el; }}
               />
             </span>
           ))}
         </div>
 
-        <button className="control-btn">
+        <button 
+          className="control-btn"
+          onClick={
+            isLastVideo
+              ? () => handleProcess("video-reset")
+              : !isPlaying
+              ? () => handleProcess("play")
+              : () => handleProcess("pause")
+          }
+        >
           <img
             src={isLastVideo ? replayImg : !isPlaying ? playImg : pauseImg}
             alt={isLastVideo ? "replay" : !isPlaying ? "play" : "pause"}
-            onClick={
-              isLastVideo
-                ? () => handleProcess("video-reset")
-                : !isPlaying
-                ? () => handleProcess("play")
-                : () => handleProcess("pause")
-            }
           />
         </button>
       </div>
