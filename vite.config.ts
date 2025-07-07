@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/brkcoder.github.io/',
+  base: '/brkcoder.github.io/iPhone-hub/',
   plugins: [react(), tailwindcss()],
    assetsInclude: ['**/*.glb'],
 })
