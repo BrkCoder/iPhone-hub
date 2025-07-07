@@ -10,39 +10,25 @@ import { View } from "@react-three/drei";
 import { models, sizes } from "../constants";
 import { animateWithGsapTimeline } from "../utils/animations";
 
-// Define types for the model structure
-interface ModelType {
-  id: number;
-  title: string;
-  color: string[];
-  img: string;
-}
-
-interface SizeType {
-  label: string;
-  value: string;
-}
-
 const Model = () => {
-  const [size, setSize] = useState<string>('small');
-  const [model, setModel] = useState<ModelType>({
-    id: 1,
+  const [size, setSize] = useState('small');
+  const [model, setModel] = useState({
     title: 'iPhone 15 Pro in Natural Titanium',
     color: ['#8F8A81', '#FFE7B9', '#6F6C64'],
     img: yellowImg,
   })
 
-  // camera control for the model view - properly typed refs
-  const cameraControlSmall = useRef<any>(null);
-  const cameraControlLarge = useRef<any>(null);
+  // camera control for the model view
+  const cameraControlSmall = useRef();
+  const cameraControlLarge = useRef();
 
   // model
   const small = useRef(new THREE.Group());
   const large = useRef(new THREE.Group());
 
   // rotation
-  const [smallRotation, setSmallRotation] = useState<number>(0);
-  const [largeRotation, setLargeRotation] = useState<number>(0);
+  const [smallRotation, setSmallRotation] = useState(0);
+  const [largeRotation, setLargeRotation] = useState(0);
 
   const tl = gsap.timeline();
 
@@ -54,25 +40,17 @@ const Model = () => {
       })
     }
 
-    if(size === 'small') {
+    if(size ==='small') {
       animateWithGsapTimeline(tl, large, largeRotation, '#view2', '#view1', {
         transform: 'translateX(0)',
         duration: 2
       })
     }
-  }, [size, tl, small, large, smallRotation, largeRotation])
+  }, [size])
 
   useGSAP(() => {
     gsap.to('#heading', { y: 0, opacity: 1 })
   }, []);
-
-  const handleModelChange = (selectedModel: ModelType) => {
-    setModel(selectedModel);
-  };
-
-  const handleSizeChange = (selectedSize: string) => {
-    setSize(selectedSize);
-  };
 
   return (
     <section className="common-padding">
@@ -88,7 +66,7 @@ const Model = () => {
               groupRef={small}
               gsapType="view1"
               controlRef={cameraControlSmall}
-              setRotation={setSmallRotation}
+              setRotationState={setSmallRotation}
               item={model}
               size={size}
             />  
@@ -98,7 +76,7 @@ const Model = () => {
               groupRef={large}
               gsapType="view2"
               controlRef={cameraControlLarge}
-              setRotation={setLargeRotation}
+              setRotationState={setLargeRotation}
               item={model}
               size={size}
             />
@@ -113,7 +91,7 @@ const Model = () => {
                 right: 0,
                 overflow: 'hidden'
               }}
-              eventSource={document.getElementById('root') as HTMLElement}
+              eventSource={document.getElementById('root')}
             >
               <View.Port />
             </Canvas>
@@ -124,28 +102,15 @@ const Model = () => {
 
             <div className="flex-center">
               <ul className="color-container">
-                {models.map((item: ModelType) => (
-                  <li 
-                    key={item.id} 
-                    className="w-6 h-6 rounded-full mx-2 cursor-pointer" 
-                    style={{ backgroundColor: item.color[0] }} 
-                    onClick={() => handleModelChange(item)} 
-                  />
+                {models.map((item, i) => (
+                  <li key={i} className="w-6 h-6 rounded-full mx-2 cursor-pointer" style={{ backgroundColor: item.color[0] }} onClick={() => setModel(item)} />
                 ))}
               </ul>
 
               <button className="size-btn-container">
-                {sizes.map((sizeOption: SizeType) => (
-                  <span 
-                    key={sizeOption.label} 
-                    className="size-btn" 
-                    style={{ 
-                      backgroundColor: size === sizeOption.value ? 'white' : 'transparent', 
-                      color: size === sizeOption.value ? 'black' : 'white'
-                    }} 
-                    onClick={() => handleSizeChange(sizeOption.value)}
-                  >
-                    {sizeOption.label}
+                {sizes.map(({ label, value }) => (
+                  <span key={label} className="size-btn" style={{ backgroundColor: size === value ? 'white' : 'transparent', color: size === value ? 'black' : 'white'}} onClick={() => setSize(value)}>
+                    {label}
                   </span>
                 ))}
               </button>
@@ -157,4 +122,4 @@ const Model = () => {
   )
 }
 
-export default Model;
+export default Model

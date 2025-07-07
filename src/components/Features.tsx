@@ -1,12 +1,11 @@
-import { useGSAP } from "@gsap/react";
-import { animateWithGsap } from "../utils/animations";
-import { useRef } from "react";
-import gsap from "gsap";
-import { exploreVideo, explore1Img, explore2Img } from "../utils";
+import { useGSAP } from '@gsap/react'
+import React, { useRef } from 'react'
+import { animateWithGsap } from '../utils/animations';
+import { explore1Img, explore2Img, exploreVideo } from '../utils';
+import gsap from 'gsap';
 
 const Features = () => {
-  // Properly typed video ref
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef();
 
   useGSAP(() => {
     gsap.to('#exploreVideo', {
@@ -16,16 +15,11 @@ const Features = () => {
         start: '-10% bottom',
       },
       onComplete: () => {
-        // Add null check and error handling for video play
-        if (videoRef.current) {
-          videoRef.current.play().catch((error) => {
-            console.log("Video play failed:", error);
-          });
-        }
+        videoRef.current.play();
       }
-    });
+    })
 
-    animateWithGsap('#features_title', { y: 0, opacity: 1 });
+    animateWithGsap('#features_title', { y:0, opacity:1})
     animateWithGsap(
       '.g_grow',
       { scale: 1, opacity: 1, ease: 'power1' },
@@ -33,13 +27,13 @@ const Features = () => {
     );
     animateWithGsap(
       '.g_text',
-      { y: 0, opacity: 1, ease: 'power2.inOut', duration: 1 }
-    );
+      {y:0, opacity: 1,ease: 'power2.inOut',duration: 1}
+    )
   }, []);
 
   return (
     <section className="h-full common-padding bg-zinc relative overflow-hidden">
-      <div className="screen-max-width">
+      <div className="screen-max-wdith">
         <div className="mb-12 w-full">
           <h1 id="features_title" className="section-heading">Explore the full story.</h1>
         </div>
@@ -52,15 +46,7 @@ const Features = () => {
 
           <div className="flex-center flex-col sm:px-10">
             <div className="relative h-[50vh] w-full flex items-center">
-              <video 
-                playsInline 
-                id="exploreVideo" 
-                className="w-full h-full object-cover object-center" 
-                preload="none" 
-                muted 
-                autoPlay 
-                ref={videoRef}
-              >
+              <video playsInline id="exploreVideo" className="w-full h-full object-cover object-center" preload="none" muted autoPlay ref={videoRef}>
                 <source src={exploreVideo} type="video/mp4" />
               </video>
             </div>
@@ -95,6 +81,8 @@ const Features = () => {
                     You'll notice the difference the moment you pick one up.
                   </p>
                 </div>
+
+
               </div>
             </div>
           </div>
@@ -104,4 +92,4 @@ const Features = () => {
   )
 }
 
-export default Features;
+export default Features
